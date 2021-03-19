@@ -16,7 +16,9 @@ interface WeatherModalProps {
 interface CityPromptProps {
 	title: string;
 	description: string;
-	initialCity: string;
+	initialInputValue: string;
+	inputValueName: string;
+	confirmButtonText: string;
 }
 
 interface SnackBarProps {
@@ -37,10 +39,12 @@ export default function WeatherView() {
 		text: "",
 	});
 
-	const [cityPromptValues] = useState<CityPromptProps>({
+	const [cityPrompt] = useState<CityPromptProps>({
 		title: "Enter city",
 		description: "Enter city name for a weather forecast of this city.",
-		initialCity: localStorage.getItem("CITY") || "",
+		initialInputValue: localStorage.getItem("CITY") || "",
+		inputValueName: "city",
+		confirmButtonText: "Show me the weather!",
 	});
 
 	const handleGetWeather = (city: string) => {
@@ -94,24 +98,15 @@ export default function WeatherView() {
 		<Container>
 			<h1 className={styles.textCenter}>Weather page</h1>
 			<DialogComponent
-				description={cityPromptValues.description}
-				title={cityPromptValues.title}
-				inputValueName={"city"}
-				confirmButtonText={"Show me the weather!"}
+				{...cityPrompt}
 				successCallback={handleGetWeather}
-				initialInputValue={cityPromptValues.initialCity}
 			/>
 			<ModalComponent
+				{...weatherModal}
 				open={openWeatherModal}
-				title={weatherModal.title}
-				text={weatherModal.text}
 				handleClose={handleCloseBackdrop}
 			/>
-			<SnackBarComponent
-				severity={snackbar.severity}
-				text={snackbar.text}
-				triggerOpen={openSnackbar}
-			/>
+			<SnackBarComponent {...snackbar} triggerOpen={openSnackbar} />
 		</Container>
 	);
 }
