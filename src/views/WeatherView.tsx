@@ -1,4 +1,4 @@
-import React, { DOMElement, ReactElement, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./WeatherView.module.scss";
 import { Container } from "@material-ui/core";
 import { Color } from "@material-ui/lab/Alert";
@@ -11,6 +11,14 @@ import {
 interface WeatherModalProps {
 	text: string;
 	title: string;
+}
+
+interface CityPromptProps {
+	title: string;
+	description: string;
+	initialInputValue: string;
+	inputValueName: string;
+	confirmButtonText: string;
 }
 
 interface SnackBarProps {
@@ -31,12 +39,25 @@ export default function WeatherView() {
 		text: "",
 	});
 
-	const promptTitle = "Enter city";
-	const promptDescription =
-		"Enter city name for a weather forecast of this city.";
+	const [cityPrompt] = useState<CityPromptProps>({
+		title: "Enter city",
+		description: "Enter city name for a weather forecast of this city.",
+		initialInputValue: localStorage.getItem("CITY") || "",
+		inputValueName: "city",
+		confirmButtonText: "Show me the weather!",
+	});
 
 	const handleGetWeather = (city: string) => {
-		setCity(city);
+		try {
+			setCity(city);
+			localStorage.setItem("CITY", city);
+		} catch (err) {
+			setSnackBar({
+				severity: "error",
+				text: err?.message || err,
+			});
+			setOpenSnackbar(true);
+		}
 	};
 
 	const showWeatherAsync = async (city: string) => {
@@ -86,21 +107,15 @@ export default function WeatherView() {
 		<Container>
 			<h1 className={styles.textCenter}>Weather page</h1>
 			<DialogComponent
-				title={promptTitle}
-				description={promptDescription}
-				getWeatherAsync={handleGetWeather}
+				{...cityPrompt}
+				successCallback={handleGetWeather}
 			/>
 			<ModalComponent
+				{...weatherModal}
 				open={openWeatherModal}
-				title={weatherModal.title}
-				text={weatherModal.text}
 				handleClose={handleCloseBackdrop}
 			/>
-			<SnackBarComponent
-				severity={snackbar.severity}
-				text={snackbar.text}
-				triggerOpen={openSnackbar}
-			/>
+			<SnackBarComponent {...snackbar} triggerOpen={openSnackbar} />
 		</Container>
 	);
 }
