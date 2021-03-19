@@ -1,4 +1,4 @@
-import React, { DOMElement, ReactElement, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./WeatherView.module.scss";
 import { Container } from "@material-ui/core";
 import { Color } from "@material-ui/lab/Alert";
@@ -11,6 +11,12 @@ import {
 interface WeatherModalProps {
 	text: string;
 	title: string;
+}
+
+interface CityPromptProps {
+	title: string;
+	description: string;
+	initialCity: string;
 }
 
 interface SnackBarProps {
@@ -31,9 +37,11 @@ export default function WeatherView() {
 		text: "",
 	});
 
-	const promptTitle = "Enter city";
-	const promptDescription =
-		"Enter city name for a weather forecast of this city.";
+	const [cityPromptValues] = useState<CityPromptProps>({
+		title: "Enter city",
+		description: "Enter city name for a weather forecast of this city.",
+		initialCity: localStorage.getItem("CITY") || "",
+	});
 
 	const handleGetWeather = (city: string) => {
 		setCity(city);
@@ -86,9 +94,12 @@ export default function WeatherView() {
 		<Container>
 			<h1 className={styles.textCenter}>Weather page</h1>
 			<DialogComponent
-				title={promptTitle}
-				description={promptDescription}
-				getWeatherAsync={handleGetWeather}
+				description={cityPromptValues.description}
+				title={cityPromptValues.title}
+				inputValueName={"city"}
+				confirmButtonText={"Show me the weather!"}
+				successCallback={handleGetWeather}
+				initialInputValue={cityPromptValues.initialCity}
 			/>
 			<ModalComponent
 				open={openWeatherModal}

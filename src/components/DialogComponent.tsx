@@ -1,4 +1,4 @@
-import React, { MouseEvent } from "react";
+import { useState, ChangeEvent } from "react";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import Dialog from "@material-ui/core/Dialog";
@@ -10,34 +10,42 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 interface Props {
 	readonly title: string;
 	readonly description: string;
-	readonly getWeatherAsync: (city: string) => void;
+	readonly initialInputValue?: string;
+	readonly inputValueName: string;
+	readonly cancelButtonText?: string;
+	readonly confirmButtonText?: string;
+	readonly successCallback: (userInput: string) => void;
 }
 
-const DialogComponent = ({ title, description, getWeatherAsync }: Props) => {
-	const [open, setOpen] = React.useState(true);
-	const [city, setCity] = React.useState(localStorage.getItem("CITY") || "");
+const DialogComponent = ({
+	title,
+	description,
+	confirmButtonText,
+	cancelButtonText,
+	initialInputValue,
+	inputValueName,
+	successCallback,
+}: Props) => {
+	const [open, setOpen] = useState(true);
+	const [userInput, setUserInput] = useState(initialInputValue || "");
 
-	const handleClose = (e: MouseEvent<HTMLButtonElement>) => {
-		const id = e.currentTarget.id;
-		if (id === "ok") {
-			try {
-				localStorage.setItem("CITY", city);
-			} catch (err) {
-				console.error(err?.message || err);
-			}
-			getWeatherAsync(city);
-		}
+	const handleTextChange = (e: ChangeEvent<HTMLInputElement>) => {
+		setUserInput(e.currentTarget.value);
+	};
+
+	const handleCancel = () => {
 		setOpen(false);
 	};
 
-	const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setCity(e.currentTarget.value);
+	const handleConfirm = () => {
+		userInput.trim() !== "" && successCallback(userInput);
+		setOpen(false);
 	};
 
 	return (
 		<Dialog
 			open={open}
-			onClose={handleClose}
+			onClose={handleCancel}
 			aria-labelledby="form-dialog-title"
 		>
 			<DialogTitle id="form-dialog-title">{title}</DialogTitle>
@@ -46,20 +54,19 @@ const DialogComponent = ({ title, description, getWeatherAsync }: Props) => {
 				<TextField
 					autoFocus
 					margin="dense"
-					id="city"
-					label="City"
+					label={inputValueName}
 					type="text"
 					fullWidth
-					value={city}
+					value={userInput}
 					onChange={handleTextChange}
 				/>
 			</DialogContent>
 			<DialogActions>
-				<Button onClick={handleClose} id="cancel" color="secondary">
-					Cancel
+				<Button onClick={handleCancel} color="secondary">
+					{cancelButtonText ?? "Cancel"}
 				</Button>
-				<Button onClick={handleClose} id="ok" color="primary">
-					Show me the weather!
+				<Button onClick={handleConfirm} color="primary">
+					{confirmButtonText ?? "Confirm"}
 				</Button>
 			</DialogActions>
 		</Dialog>
