@@ -48,7 +48,16 @@ export default function WeatherView() {
 	});
 
 	const handleGetWeather = (city: string) => {
-		setCity(city);
+		try {
+			setCity(city);
+			localStorage.setItem("CITY", city);
+		} catch (err) {
+			setSnackBar({
+				severity: "error",
+				text: err?.message || err,
+			});
+			setOpenSnackbar(true);
+		}
 	};
 
 	const showWeatherAsync = async (city: string) => {
