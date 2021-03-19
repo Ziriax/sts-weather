@@ -2,7 +2,7 @@ import React from "react";
 import Modal from "@material-ui/core/Modal";
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 
-interface ModalComponentProps {
+interface Props {
 	readonly open: boolean;
 	readonly title: string;
 	readonly text: string;
@@ -21,12 +21,7 @@ const useStyles = makeStyles((theme: Theme) =>
 	})
 );
 
-const ModalComponent = ({
-	open,
-	title,
-	text,
-	handleClose,
-}: ModalComponentProps) => {
+const ModalComponent = ({ open, title, text, handleClose }: Props) => {
 	const classes = useStyles();
 	const modalStyle = {
 		top: "50%",

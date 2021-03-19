@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert, { AlertProps, Color } from "@material-ui/lab/Alert";
 
-interface SnackBarComponentProps {
+interface Props {
 	severity: Color;
 	text: string;
 	triggerOpen: boolean;
@@ -12,11 +12,7 @@ function Alert(props: AlertProps) {
 	return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
-const SnackBarComponent = ({
-	severity,
-	text,
-	triggerOpen,
-}: SnackBarComponentProps) => {
+const SnackBarComponent = ({ severity, text, triggerOpen }: Props) => {
 	const [open, setOpen] = React.useState(false);
 
 	const handleClose = (event?: React.SyntheticEvent, reason?: string) => {

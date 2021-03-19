@@ -7,17 +7,13 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 
-interface DialogComponentProps {
+interface Props {
 	readonly title: string;
 	readonly description: string;
 	readonly getWeatherAsync: (city: string) => void;
 }
 
-const DialogComponent = ({
-	title,
-	description,
-	getWeatherAsync,
-}: DialogComponentProps) => {
+const DialogComponent = ({ title, description, getWeatherAsync }: Props) => {
 	const [open, setOpen] = React.useState(true);
 	const [city, setCity] = React.useState(localStorage.getItem("CITY") || "");
 
