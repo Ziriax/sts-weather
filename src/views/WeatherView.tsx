@@ -40,17 +40,20 @@ export default function WeatherView() {
 		return weatherModal.text !== "" && weatherModal.title !== "";
 	}, [weatherModal]);
 
-	const weatherSuccessCallback = useCallback((city: string) => {
-		try {
-			if (city.trim() === "") {
-				throw new Error("The city can't be empty");
+	const weatherSuccessCallback = useCallback(
+		(city: string) => {
+			try {
+				if (city.trim() === "") {
+					throw new Error("The city can't be empty");
+				}
+				setCity(city);
+				localStorage.setItem("CITY", city);
+			} catch (err) {
+				errorAlert(err?.message || err);
 			}
-			setCity(city);
-			localStorage.setItem("CITY", city);
-		} catch (err) {
-			errorAlert(err?.message || err);
-		}
-	}, []);
+		},
+		[errorAlert]
+	);
 
 	const resetWeatherModal = useCallback(() => {
 		setWeatherModal({ text: "", title: "" });
@@ -85,7 +88,7 @@ export default function WeatherView() {
 		if (city !== "") {
 			showWeatherAsync(city);
 		}
-	}, [city]);
+	}, [city, errorAlert]);
 
 	return (
 		<Container>
