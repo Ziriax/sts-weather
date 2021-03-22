@@ -1,12 +1,8 @@
 import { useEffect, useState, useMemo } from "react";
 import styles from "./WeatherView.module.scss";
 import { Container } from "@material-ui/core";
-import { Color } from "@material-ui/lab/Alert";
-import {
-	ModalComponent,
-	DialogComponent,
-	SnackbarComponent,
-} from "../components";
+import { ModalComponent, DialogComponent } from "../components";
+import { useAlerts } from "../hooks/AlertHooks";
 
 interface WeatherModalProps {
 	text: string;
@@ -21,11 +17,6 @@ interface CityPromptProps {
 	confirmButtonText: string;
 }
 
-interface SnackbarProps {
-	text: string;
-	severity: Color;
-}
-
 export default function WeatherView() {
 	const [city, setCity] = useState("");
 	const [openWeatherModal, setOpenWeatherModal] = useState(false);
@@ -33,12 +24,7 @@ export default function WeatherView() {
 		text: "",
 		title: "",
 	});
-	const [openSnackbar, setOpenSnackbar] = useState(false);
-	const [snackbar, setSnackbar] = useState<SnackbarProps>({
-		severity: "error",
-		text: "",
-	});
-
+	const { errorAlert } = useAlerts();
 	const cityPrompt = useMemo<CityPromptProps>(() => {
 		return {
 			title: "Enter city",
@@ -52,13 +38,13 @@ export default function WeatherView() {
 
 	const handleGetWeather = (city: string) => {
 		try {
+			if (city.trim() === "") {
+				throw new Error("The city can't be empty");
+			}
 			setCity(city);
 			localStorage.setItem("CITY", city);
 		} catch (err) {
-			setSnackbar({
-				severity: "error",
-				text: err?.message || err,
-			});
+			errorAlert(err?.message || err);
 		}
 	};
 
@@ -66,11 +52,9 @@ export default function WeatherView() {
 		const apiKey = process.env.REACT_APP_WEATHER_API_KEY;
 
 		if (!apiKey) {
-			setSnackbar({
-				severity: "error",
-				text:
-					"put API key in .env.local as REACT_APP_WEATHER_API_KEY",
-			});
+			errorAlert(
+				"put API key in .env.local as REACT_APP_WEATHER_API_KEY"
+			);
 			return;
 		}
 
@@ -85,10 +69,7 @@ export default function WeatherView() {
 				title: `Weather in ${city}`,
 			});
 		} catch (err) {
-			setSnackbar({
-				severity: "error",
-				text: err?.message || err,
-			});
+			errorAlert(err?.message || err);
 		}
 	};
 
@@ -103,11 +84,9 @@ export default function WeatherView() {
 	}, [city]);
 
 	useEffect(() => {
-		setOpenSnackbar(true);
-	}, [snackbar]);
-
-	useEffect(() => {
-		setOpenWeatherModal(true);
+		if (weatherModal.text !== "") {
+			setOpenWeatherModal(true);
+		}
 	}, [weatherModal]);
 
 	return (
@@ -122,7 +101,6 @@ export default function WeatherView() {
 				open={openWeatherModal}
 				handleClose={handleCloseBackdrop}
 			/>
-			<SnackbarComponent {...snackbar} triggerOpen={openSnackbar} />
 		</Container>
 	);
 }

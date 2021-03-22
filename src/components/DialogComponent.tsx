@@ -38,7 +38,7 @@ const DialogComponent = ({
 	};
 
 	const handleConfirm = () => {
-		userInput.trim() !== "" && successCallback(userInput);
+		successCallback(userInput);
 		setOpen(false);
 	};
 

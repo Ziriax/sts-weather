@@ -1,14 +1,22 @@
-import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
+import { SnackbarProvider } from "notistack";
 
 ReactDOM.render(
 	// <React.StrictMode>
-	<App />,
-	// </React.StrictMode>,
+	<SnackbarProvider
+		maxSnack={5}
+		anchorOrigin={{
+			vertical: "bottom",
+			horizontal: "right",
+		}}
+	>
+		<App />
+	</SnackbarProvider>,
 	document.getElementById("root")
+	// </React.StrictMode>,
 );
 
 // If you want to start measuring performance in your app, pass a function

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect, SyntheticEvent, useState } from "react";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert, { AlertProps, Color } from "@material-ui/lab/Alert";
 
@@ -13,9 +13,9 @@ function Alert(props: AlertProps) {
 }
 
 const SnackbarComponent = ({ severity, text, triggerOpen }: Props) => {
-	const [open, setOpen] = React.useState(false);
+	const [open, setOpen] = useState(false);
 
-	const handleClose = (event?: React.SyntheticEvent, reason?: string) => {
+	const handleClose = (event?: SyntheticEvent, reason?: string) => {
 		if (reason === "clickaway") {
 			return;
 		}
