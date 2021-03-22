@@ -1,3 +1,4 @@
+import { memo } from "react";
 import Modal from "@material-ui/core/Modal";
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 
@@ -5,7 +6,7 @@ interface Props {
 	readonly open: boolean;
 	readonly title: string;
 	readonly text: string;
-	readonly handleClose: () => void;
+	handleClose(): void;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -47,4 +48,4 @@ const ModalComponent = ({ open, title, text, handleClose }: Props) => {
 	);
 };
 
-export default ModalComponent;
+export default memo(ModalComponent);

@@ -1,4 +1,4 @@
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, memo } from "react";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import Dialog from "@material-ui/core/Dialog";
@@ -73,4 +73,4 @@ const DialogComponent = ({
 	);
 };
 
-export default DialogComponent;
+export default memo(DialogComponent);
