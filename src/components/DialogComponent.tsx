@@ -14,7 +14,7 @@ interface Props {
 	readonly inputValueName: string;
 	readonly cancelButtonText?: string;
 	readonly confirmButtonText?: string;
-	readonly successCallback: (userInput: string) => void;
+	successCallback(userInput: string): void;
 }
 
 const DialogComponent = ({
