@@ -1,12 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import styles from "./WeatherView.module.scss";
 import { Container } from "@material-ui/core";
-import { Color } from "@material-ui/lab/Alert";
-import {
-	ModalComponent,
-	DialogComponent,
-	SnackBarComponent,
-} from "../components";
+import { ModalComponent, DialogComponent } from "../components";
+import { useAlerts } from "../hooks/AlertHooks";
 
 interface WeatherModalProps {
 	text: string;
@@ -21,101 +17,91 @@ interface CityPromptProps {
 	confirmButtonText: string;
 }
 
-interface SnackBarProps {
-	text: string;
-	severity: Color;
-}
-
 export default function WeatherView() {
+	const { errorAlert } = useAlerts();
 	const [city, setCity] = useState("");
-	const [openWeatherModal, setOpenWeatherModal] = useState(false);
+	// const [openWeatherModal, setOpenWeatherModal] = useState(false);
 	const [weatherModal, setWeatherModal] = useState<WeatherModalProps>({
 		text: "",
 		title: "",
 	});
-	const [openSnackbar, setOpenSnackbar] = useState(false);
-	const [snackbar, setSnackBar] = useState<SnackBarProps>({
-		severity: "error",
-		text: "",
-	});
+	const cityPrompt = useMemo<CityPromptProps>(() => {
+		return {
+			title: "Enter city",
+			description:
+				"Enter city name for a weather forecast of this city.",
+			initialInputValue: localStorage.getItem("CITY") || "",
+			inputValueName: "city",
+			confirmButtonText: "Show me the weather!",
+		};
+	}, []);
 
-	const [cityPrompt] = useState<CityPromptProps>({
-		title: "Enter city",
-		description: "Enter city name for a weather forecast of this city.",
-		initialInputValue: localStorage.getItem("CITY") || "",
-		inputValueName: "city",
-		confirmButtonText: "Show me the weather!",
-	});
+	const weatherModalIsNotEmpty = useMemo(() => {
+		return weatherModal.text !== "" && weatherModal.title !== "";
+	}, [weatherModal]);
 
-	const handleGetWeather = (city: string) => {
-		try {
-			setCity(city);
-			localStorage.setItem("CITY", city);
-		} catch (err) {
-			setSnackBar({
-				severity: "error",
-				text: err?.message || err,
-			});
-			setOpenSnackbar(true);
-		}
-	};
+	const weatherSuccessCallback = useCallback(
+		(city: string) => {
+			try {
+				if (city.trim() === "") {
+					throw new Error("The city can't be empty");
+				}
+				setCity(city);
+				localStorage.setItem("CITY", city);
+			} catch (err) {
+				errorAlert(err?.message || err);
+			}
+		},
+		[errorAlert]
+	);
 
-	const showWeatherAsync = async (city: string) => {
-		const apiKey = process.env.REACT_APP_WEATHER_API_KEY;
-
-		if (!apiKey) {
-			setSnackBar({
-				severity: "error",
-				text:
-					"put API key in .env.local as REACT_APP_WEATHER_API_KEY",
-			});
-			setOpenSnackbar(true);
-			return;
-		}
-
-		try {
-			const requestUri = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`;
-			const response = await fetch(requestUri);
-			const data = await response.json();
-			setWeatherModal({
-				text: `Today it feels like ${Math.round(
-					data.main.feels_like - 273
-				)}°C`,
-				title: `Weather in ${city}`,
-			});
-			setOpenWeatherModal(true);
-		} catch (err) {
-			setSnackBar({
-				severity: "error",
-				text: err?.message || err,
-			});
-			setOpenSnackbar(true);
-		}
-	};
-
-	const handleCloseBackdrop = () => {
-		setOpenWeatherModal(false);
-	};
+	const resetWeatherModal = useCallback(() => {
+		setWeatherModal({ text: "", title: "" });
+	}, []);
 
 	useEffect(() => {
+		const showWeatherAsync = async (city: string) => {
+			const apiKey = process.env.REACT_APP_WEATHER_API_KEY;
+
+			if (!apiKey) {
+				errorAlert(
+					"put API key in .env.local as REACT_APP_WEATHER_API_KEY"
+				);
+				return;
+			}
+
+			try {
+				const requestUri = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`;
+				const response = await fetch(requestUri);
+				const data = await response.json();
+				setWeatherModal({
+					text: `Today it feels like ${Math.round(
+						data.main.feels_like - 273
+					)}°C`,
+					title: `Weather in ${city}`,
+				});
+			} catch (err) {
+				errorAlert(err?.message || err);
+			}
+		};
+
 		if (city !== "") {
 			showWeatherAsync(city);
 		}
-	}, [city]);
+	}, [city, errorAlert]);
 
 	return (
 		<Container>
 			<h1 className={styles.textCenter}>Weather page</h1>
 			<DialogComponent
 				{...cityPrompt}
-				successCallback={handleGetWeather}
+				successCallback={weatherSuccessCallback}
 			/>
 			<ModalComponent
 				{...weatherModal}
-				open={openWeatherModal}
-				handleClose={handleCloseBackdrop}
+				open={weatherModalIsNotEmpty}
+				handleClose={resetWeatherModal}
 			/>
-			<SnackBarComponent {...snackbar} triggerOpen={openSnackbar} />
 		</Container>
 	);
 }

@@ -1,4 +1,4 @@
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, memo } from "react";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import Dialog from "@material-ui/core/Dialog";
@@ -14,7 +14,7 @@ interface Props {
 	readonly inputValueName: string;
 	readonly cancelButtonText?: string;
 	readonly confirmButtonText?: string;
-	readonly successCallback: (userInput: string) => void;
+	successCallback(userInput: string): void;
 }
 
 const DialogComponent = ({
@@ -38,7 +38,7 @@ const DialogComponent = ({
 	};
 
 	const handleConfirm = () => {
-		userInput.trim() !== "" && successCallback(userInput);
+		successCallback(userInput);
 		setOpen(false);
 	};
 
@@ -73,4 +73,4 @@ const DialogComponent = ({
 	);
 };
 
-export default DialogComponent;
+export default memo(DialogComponent);
