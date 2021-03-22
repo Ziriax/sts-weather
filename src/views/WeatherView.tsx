@@ -5,7 +5,7 @@ import { Color } from "@material-ui/lab/Alert";
 import {
 	ModalComponent,
 	DialogComponent,
-	SnackBarComponent,
+	SnackbarComponent,
 } from "../components";
 
 interface WeatherModalProps {
@@ -21,7 +21,7 @@ interface CityPromptProps {
 	confirmButtonText: string;
 }
 
-interface SnackBarProps {
+interface SnackbarProps {
 	text: string;
 	severity: Color;
 }
@@ -34,7 +34,7 @@ export default function WeatherView() {
 		title: "",
 	});
 	const [openSnackbar, setOpenSnackbar] = useState(false);
-	const [snackbar, setSnackBar] = useState<SnackBarProps>({
+	const [snackbar, setSnackbar] = useState<SnackbarProps>({
 		severity: "error",
 		text: "",
 	});
@@ -52,11 +52,10 @@ export default function WeatherView() {
 			setCity(city);
 			localStorage.setItem("CITY", city);
 		} catch (err) {
-			setSnackBar({
+			setSnackbar({
 				severity: "error",
 				text: err?.message || err,
 			});
-			setOpenSnackbar(true);
 		}
 	};
 
@@ -64,12 +63,11 @@ export default function WeatherView() {
 		const apiKey = process.env.REACT_APP_WEATHER_API_KEY;
 
 		if (!apiKey) {
-			setSnackBar({
+			setSnackbar({
 				severity: "error",
 				text:
 					"put API key in .env.local as REACT_APP_WEATHER_API_KEY",
 			});
-			setOpenSnackbar(true);
 			return;
 		}
 
@@ -83,13 +81,11 @@ export default function WeatherView() {
 				)}°C`,
 				title: `Weather in ${city}`,
 			});
-			setOpenWeatherModal(true);
 		} catch (err) {
-			setSnackBar({
+			setSnackbar({
 				severity: "error",
 				text: err?.message || err,
 			});
-			setOpenSnackbar(true);
 		}
 	};
 
@@ -103,6 +99,14 @@ export default function WeatherView() {
 		}
 	}, [city]);
 
+	useEffect(() => {
+		setOpenSnackbar(true);
+	}, [snackbar]);
+
+	useEffect(() => {
+		setOpenWeatherModal(true);
+	}, [weatherModal]);
+
 	return (
 		<Container>
 			<h1 className={styles.textCenter}>Weather page</h1>
@@ -115,7 +119,7 @@ export default function WeatherView() {
 				open={openWeatherModal}
 				handleClose={handleCloseBackdrop}
 			/>
-			<SnackBarComponent {...snackbar} triggerOpen={openSnackbar} />
+			<SnackbarComponent {...snackbar} triggerOpen={openSnackbar} />
 		</Container>
 	);
 }

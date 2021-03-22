@@ -12,7 +12,7 @@ function Alert(props: AlertProps) {
 	return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
-const SnackBarComponent = ({ severity, text, triggerOpen }: Props) => {
+const SnackbarComponent = ({ severity, text, triggerOpen }: Props) => {
 	const [open, setOpen] = React.useState(false);
 
 	const handleClose = (event?: React.SyntheticEvent, reason?: string) => {
@@ -38,4 +38,4 @@ const SnackBarComponent = ({ severity, text, triggerOpen }: Props) => {
 	);
 };
 
-export default SnackBarComponent;
+export default SnackbarComponent;
