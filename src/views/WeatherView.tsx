@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import styles from "./WeatherView.module.scss";
 import { Container } from "@material-ui/core";
 import { Color } from "@material-ui/lab/Alert";
@@ -39,13 +39,16 @@ export default function WeatherView() {
 		text: "",
 	});
 
-	const [cityPrompt] = useState<CityPromptProps>({
-		title: "Enter city",
-		description: "Enter city name for a weather forecast of this city.",
-		initialInputValue: localStorage.getItem("CITY") || "",
-		inputValueName: "city",
-		confirmButtonText: "Show me the weather!",
-	});
+	const cityPrompt = useMemo<CityPromptProps>(() => {
+		return {
+			title: "Enter city",
+			description:
+				"Enter city name for a weather forecast of this city.",
+			initialInputValue: localStorage.getItem("CITY") || "",
+			inputValueName: "city",
+			confirmButtonText: "Show me the weather!",
+		};
+	}, []);
 
 	const handleGetWeather = (city: string) => {
 		try {
